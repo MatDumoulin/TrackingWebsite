@@ -5,23 +5,30 @@ import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { AppComponent } from './app.component';
+import { AngularMaterialModule } from './angular-material.module';
+import { environment } from '../environments/environment';
+import 'hammerjs'; // To support angular material gestures
+
 
 // Services
 import { TrackeeService } from './data-services/trackee.service';
 
-import { environment } from '../environments/environment';
+// Components
+import { ToolbarComponent } from './pages/toolbar/toolbar.component';
+import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ToolbarComponent
   ],
   imports: [
     BrowserModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
-    environment.production ? ServiceWorkerModule.register('/ngsw-worker.js') : []
+    environment.production ? ServiceWorkerModule.register('/ngsw-worker.js') : [],
+    AngularMaterialModule
   ],
   providers: [TrackeeService],
   bootstrap: [AppComponent]
