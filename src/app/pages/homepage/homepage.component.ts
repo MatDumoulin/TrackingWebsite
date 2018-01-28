@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TrackeeService } from '../../data-services/trackee.service';
+import { AuthService } from '../../data-services/auth.service';
 
 
 @Component({
@@ -9,9 +10,13 @@ import { TrackeeService } from '../../data-services/trackee.service';
 })
 export class HomepageComponent {
 
-  constructor(public trackeeService: TrackeeService) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {
+  }
+
+  signInWithGoogle() {
+  	  this.authService.signInWithGoogle();
   }
 
 }

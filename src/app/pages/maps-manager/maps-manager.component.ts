@@ -79,7 +79,7 @@ export class MapsManagerComponent {
 	    });
 
 	    // Subscribing to the trackee data service for changes
-	    this.trackeeService.getObservable().subscribe( trackees => this.updateMarkerList(trackees));
+	    this.trackeeService.fetchTrackeesByRoom(4).subscribe( trackees => this.updateMarkerList(trackees));
 	}
 
 	// Not working

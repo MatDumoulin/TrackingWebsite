@@ -1,0 +1,17 @@
+<div class="modal-container">
+	<div>
+		<h1 mat-dialog-title>Enter the room you want to join</h1>
+		<p class="description">The manager of this room will be able to track your position once you accept. The geo localisation will only occur when this site is opened and you have joined a room.</p>
+	</div>
+
+	<div mat-dialog-content>
+		<mat-form-field class="zone-input">
+			<input pattern="[0-9]*" matInput placeholder="Enter room number" [(ngModel)]="currentRoom" required>
+			<mat-error *ngIf="!currentRoom">You must enter a number</mat-error>
+		</mat-form-field>
+	</div>
+
+	<div mat-dialog-actions align="end">
+		<button mat-button color="primary" (click)="joinRoom()">Join</button>
+	</div>
+</div>

@@ -1,0 +1,13 @@
+
+<div class="client-container">
+	<div class="fill-space">
+		<span *ngIf="clientInfo">Transmitting data!</span>
+		<ul>
+			<li *ngFor="let location of locations">{{location | json}}</li>
+		</ul>
+	</div>
+
+	<div class="footer">
+		<button mat-fab color="primary" (click)="cancelTracking()"></button>
+	</div>
+</div>

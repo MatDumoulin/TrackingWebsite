@@ -1,0 +1,15 @@
+.client-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+}
+
+.fill-space {
+	flex-grow: 2;
+}
+
+.footer {
+	display: flex;
+    flex-direction: row-reverse;
+    padding: 20px;
+}
