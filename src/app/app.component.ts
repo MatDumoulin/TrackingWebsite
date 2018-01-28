@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { TrackeeService } from './data-services/trackee.service';
-
 
 @Component({
   selector: 'app-root',
@@ -8,9 +6,8 @@ import { TrackeeService } from './data-services/trackee.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'app';
   
-  constructor(public trackeeService: TrackeeService) {}
+  constructor() {}
 
   ngOnInit() {
 

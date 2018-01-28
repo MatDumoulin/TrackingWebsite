@@ -1,0 +1,13 @@
+h1 {
+	cursor: pointer;
+	font-size: inherit;
+	transition: font-size ease 0.5s;
+}
+
+h1:focus {
+	outline: none;
+}
+
+h1:hover {
+	font-size: 1.05em;
+}

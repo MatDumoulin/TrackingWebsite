@@ -1,9 +1,13 @@
 export class Trackee {
 	name: string;
-	location: string;
+	lon: string;
+	lat: string;
+	isApproved: boolean;
 
 	constructor() {
 		this.name = "";
-		this.location = "";
+		this.lon = "";
+		this.lat = "";
+		this.isApproved = false;
 	}
 }

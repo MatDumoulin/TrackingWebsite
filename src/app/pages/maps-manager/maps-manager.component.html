@@ -1,0 +1,27 @@
+<div class="map-container mat-elevation-z5">
+	<div class="search-bar mat-elevation-z8">
+		<mat-form-field class="search-field">
+			<input matInput placeholder="Search for destination" [formControl]="searchControl" #search>
+			<mat-hint>Press 'Enter' to search</mat-hint>
+		</mat-form-field>
+		<!--<button mat-icon-button matTooltip="Search" (click)="searchDestination()">
+			 <mat-icon aria-label="Search for destination">search</mat-icon>
+		</button>-->
+	</div>
+
+	<agm-map class="map" [latitude]="45.497011" [longitude]="-74.02066" (mapClick)="updateDestination($event)">
+
+	    <agm-marker *ngFor="let marker of markers; let i = index" 
+	  			    [latitude]="marker.lat" 
+	  			    [longitude]="marker.long" 
+	  			    [label]="getLetter(i)"
+	  			    (markerClick)="onMarkerClick(info)"
+	  			    openInfoWindow="false">
+
+			<agm-info-window #info>
+		      <strong>{{marker.name}}</strong>
+		    </agm-info-window>
+	    </agm-marker>
+
+	</agm-map>
+</div>
