@@ -1,3 +1,7 @@
+@angular/forms@5.2.2
+MIT
+MIT
+
 process@0.11.10
 MIT
 (The MIT License)
@@ -24,6 +28,14 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 @angular/core@5.2.2
+MIT
+MIT
+
+@angular/platform-browser@5.2.2
+MIT
+MIT
+
+@angular/common@5.2.2
 MIT
 MIT
 

@@ -15,6 +15,8 @@ import { AppRoutingModule } from "./route.module";
 
 // Services
 import { TrackeeService } from './data-services/trackee.service';
+import { CoreModule } from './core/core.module';
+import { ClientCreateModule } from './pages/client-create/client-create.module';
 
 // Components
 import { ToolbarComponent } from './pages/toolbar/toolbar.component';
@@ -22,6 +24,8 @@ import { AppComponent } from './app.component';
 import { MapsComponent } from './controls/maps/maps.component';
 import { MapsManagerComponent } from './pages/maps-manager/maps-manager.component';
 import { HomepageComponent } from './pages/homepage/homepage.component';
+import { ClientComponent } from './pages/client/client.component';
+import { ClientCreateComponent } from './pages/client-create/client-create.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,8 @@ import { HomepageComponent } from './pages/homepage/homepage.component';
     ToolbarComponent,
     MapsComponent,
     MapsManagerComponent,
-    HomepageComponent
+    HomepageComponent,
+    ClientComponent
   ],
   imports: [
     BrowserModule,
@@ -41,10 +46,15 @@ import { HomepageComponent } from './pages/homepage/homepage.component';
     environment.production ? ServiceWorkerModule.register('/ngsw-worker.js') : [],
     AngularMaterialModule,
     AppRoutingModule,
+    CoreModule,
+    ClientCreateModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyAEuO9LAxQuSLlUWdW9-jAoA5_W5Xryvss',
       libraries: ["places"]
     })
+  ],
+  entryComponents: [
+    ClientCreateComponent
   ],
   providers: [TrackeeService],
   bootstrap: [AppComponent]
