@@ -1,9 +1,17 @@
 <mat-toolbar color="primary">
 	<mat-toolbar-row class="toolbar">
-		<h1 [routerLink]="['/home']">Tracking Manager</h1>
+        <div class="section">
+            <button mat-icon-button *ngIf="router.url !== '/login'" (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
+            <h1 [routerLink]="['/home']">Tracking Manager</h1>
+        </div>
+
+
 		<button mat-button *ngIf="authService.isLoggedIn()" (click)="authService.logout()">
-			<img class="profile-picture" [src]="authService.getUser().photoURL">
-			{{ authService.getUser().displayName }}
-		</button>
+			<img class="profile-picture" [src]="currentUserService.user.profilePicture">
+			{{ currentUserService.user.fullName }}
+        </button>
+
+        <!--<firebase-ui *ngIf="!authService.isLoggedIn()"></firebase-ui>-->
+        <div id="signin-with-google" [hidden]="authService.isLoggedIn()"></div>
 	</mat-toolbar-row>
 </mat-toolbar>

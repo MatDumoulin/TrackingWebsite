@@ -1,56 +1,99 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../data-services/auth.service';
-import { Trackee } from '../../models/trackee.model';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { ClientCreateComponent } from '../client-create/client-create.component';
+import { Subscription } from 'rxjs/Subscription';
+import 'rxjs/add/operator/skip';
 
+import { ClientCreateComponent } from '../client-create/client-create.component';
+import { CurrentUserService } from '../../data-services/current-user/current-user.service';
+import { Trackee } from '../../models/trackee.model';
 
 @Component({
-  selector: 'app-client',
-  templateUrl: './client.component.html',
-  styleUrls: ['./client.component.css']
+    selector: 'tm-client',
+    templateUrl: './client.component.html',
+    styleUrls: ['./client.component.css']
 })
-export class ClientComponent implements OnInit {
-	clientInfo = new Trackee();
-  interval: any;
-  locations = [];
+export class ClientComponent implements OnInit, OnDestroy {
+    interval: any;
+    isTracking: boolean = null;
+    currentTrackee: Trackee = null;
+    private hasOpenDialog = false;
+    private userObs: Subscription;
 
-  constructor(public authService: AuthService, private dialog: MatDialog) { }
+    constructor(public currentUserService: CurrentUserService, private dialog: MatDialog) { }
 
-  ngOnInit() {
-	    this.authService.getUserInfo().subscribe(info => {
-	    	this.clientInfo = info[0];
+    ngOnInit() {
+        console.log("Client!");
+        this.userObs = this.currentUserService.userTrackee.subscribe(trackee => {
+            // The setTimeout is needed in order to prevent
+            setTimeout( () => {
+                if (!this.hasOpenDialog) {
+                    this.openCreateClientDialog();
+                    this.hasOpenDialog = true;
+                }
+            });
+            this.currentTrackee = trackee;
+        });
+    }
 
-        if(info.length === 0) {
-          this.openCreateClientDialog();
+    ngOnDestroy() {
+        // Cleaning up the resources used.
+        this.pauseTracking();
+        this.userObs.unsubscribe();
+    }
+
+    openCreateClientDialog() {
+        this.dialog.open(ClientCreateComponent, { disableClose: true }).afterClosed()
+            .subscribe(response => {
+                // Ignoring when the user cancels zone search.
+                if (response && response.hasJoined) {
+
+                    this.currentUserService.updateUser({ room: response.room.id });
+                    this.startTracking();
+                }
+            });
+    }
+
+    startTracking() {
+        this.isTracking = true;
+
+        // An interval is only trigerred after X ms. We want to send the location right away.
+        this.emitLocation();
+        this.interval = setInterval(() => {
+            this.emitLocation();
+        }, 5000);
+    }
+
+    private emitLocation() {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            this.currentUserService.updateUser({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        });
+    }
+
+    private pauseTracking() {
+        this.isTracking = false;
+        clearInterval(this.interval);
+    }
+
+    private resumeTracking() {
+        this.startTracking();
+    }
+
+    toggleTracking() {
+        if (this.isTracking) {
+            this.pauseTracking();
         }
-	    });
-  }
+        else {
+            this.resumeTracking();
+        }
+    }
 
-  openCreateClientDialog() {
-      this.dialog.open(ClientCreateComponent).afterClosed()
-               .subscribe(response => {
-                 // Ignoring when the user cancels zone search.
-                 if(response && response.hasJoined) {
-
-                      //this.authService.updateUser(this.clientInfo, {room: response.roomNumber});
-                      this.startTracking();
-                 }
-               });
-  }
-
-  startTracking() {
-    this.interval = setInterval(() => {
-      navigator.geolocation.getCurrentPosition((pos) => {
-          console.log("Tracking...");
-          this.locations.push({lat: pos.coords.latitude, lon:pos.coords.longitude});
-      });
-    }, 5000);
-  }
-
-  cancelTracking() {
-    console.log("Stopping");
-    clearInterval(this.interval);
-  }
+    getTrackingTooltip() {
+        if (this.isTracking) {
+            return "Pause tracking";
+        }
+        else {
+            return "Resume tracking";
+        }
+    }
 
 }

@@ -1,6 +1,19 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<toolbar></toolbar>
+<tm-toolbar [sidenav]="sidenav"></tm-toolbar>
 
-<div class="main-container">
-  <router-outlet></router-outlet>
-</div>
+<mat-sidenav-container class="website-container">
+
+    <mat-sidenav class="sidenav" #sidenav>
+        <mat-nav-list>
+            <mat-list-item [routerLink]="['/join']" (click)="sidenav.close()">
+                <mat-icon color="primary" matListIcon>home</mat-icon>Join Room
+            </mat-list-item>
+            <mat-list-item [routerLink]="['/create']" (click)="sidenav.close()">
+                <mat-icon color="primary" matListIcon>library_books</mat-icon>Create Room
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <div class="main-container">
+        <router-outlet></router-outlet>
+    </div>
+</mat-sidenav-container>

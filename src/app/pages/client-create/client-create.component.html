@@ -1,17 +1,22 @@
-<div class="modal-container">
+<form class="modal-container" #form="ngForm" autocomplete="off">
 	<div>
 		<h1 mat-dialog-title>Enter the room you want to join</h1>
 		<p class="description">The manager of this room will be able to track your position once you accept. The geo localisation will only occur when this site is opened and you have joined a room.</p>
 	</div>
 
-	<div mat-dialog-content>
+	<div class="full-width" mat-dialog-content>
 		<mat-form-field class="zone-input">
-			<input pattern="[0-9]*" matInput placeholder="Enter room number" [(ngModel)]="currentRoom" required>
-			<mat-error *ngIf="!currentRoom">You must enter a number</mat-error>
+			<input matInput placeholder="Enter room name" [(ngModel)]="currentRoom"  name="roomInput" #roomInput="ngModel" required>
+			<mat-error *ngIf="!roomInput.valid">You must enter a room name</mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="zone-input">
+			<input type="password" matInput placeholder="Room password" [(ngModel)]="password"  name="roomPassword" #roomPassword="ngModel" required>
+			<mat-error *ngIf="!roomPassword.valid">You must enter a password</mat-error>
 		</mat-form-field>
 	</div>
 
 	<div mat-dialog-actions align="end">
-		<button mat-button color="primary" (click)="joinRoom()">Join</button>
+		<button mat-button color="primary" (click)="joinRoom()" [disabled]="!form.valid">Join</button>
 	</div>
-</div>
+</form>

@@ -1,13 +1,17 @@
 
 <div class="client-container">
 	<div class="fill-space">
-		<span *ngIf="clientInfo">Transmitting data!</span>
+		<span *ngIf="currentTrackee">Transmitting data!</span>
 		<ul>
-			<li *ngFor="let location of locations">{{location | json}}</li>
+            <li *ngIf="currentTrackee">Lat: {{currentTrackee.lat | json}}</li>
+            <li *ngIf="currentTrackee">Lon: {{currentTrackee.lon | json}}</li>
 		</ul>
-	</div>
+    </div>
 
 	<div class="footer">
-		<button mat-fab color="primary" (click)="cancelTracking()"></button>
+        <button mat-fab color="primary" (click)="toggleTracking()" *ngIf="isTracking !== null" [matTooltip]="getTrackingTooltip()">
+            <mat-icon *ngIf="isTracking">pause</mat-icon>
+            <mat-icon *ngIf="!isTracking">wifi</mat-icon>
+        </button>
 	</div>
 </div>

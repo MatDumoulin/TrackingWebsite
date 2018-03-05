@@ -3,26 +3,21 @@ h1 {
 }
 
 .description {
-	color: gray;
+    color: gray;
+    width: 100%;
 }
 
 .zone-input {
 	width: 300px;
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 500px) {
 	.modal-container {
-		width: 40vw;
+		width: 500px;
 	}
 }
 
-@media screen and (min-width: 700px) and (max-width: 1001px) {
-	.modal-container {
-		width: 65vw;
-	}
-}
-
-@media screen and (max-width: 701px) {
+@media screen and (max-width: 501px) {
 	.modal-container {
 		width: 100vw;
 	}

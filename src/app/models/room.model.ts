@@ -1,9 +1,11 @@
 export class Room {
-	name: string;
-	hasPassword: boolean;
+    id?: string;
+    name: string;
+    supervisor?: string;
 
-	constructor() {
-		this.name = "";
-		this.hasPassword = false;
-	}
+    constructor() {
+        this.id = null;
+        this.name = "";
+        this.supervisor = null;
+    }
 }

@@ -76,15 +76,10 @@
     "one-line": [
       true,
       "check-open-brace",
-      "check-catch",
-      "check-else",
       "check-whitespace"
     ],
+    "only-arrow-functions": true,
     "prefer-const": true,
-    "quotemark": [
-      true,
-      "single"
-    ],
     "radix": true,
     "semicolon": [
       true,
@@ -118,13 +113,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "app",
+      "tm",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "app",
+      "tm",
       "kebab-case"
     ],
     "angular-whitespace": [true, "check-interpolation"],
