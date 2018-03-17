@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+
 import { TrackeeService } from '../../data-services/trackee/trackee.service';
+
 
 
 @Component({
@@ -8,7 +10,6 @@ import { TrackeeService } from '../../data-services/trackee/trackee.service';
     styleUrls: ['./home-page.component.css']
 })
 export class HomePageComponent implements OnInit {
-
     constructor() { }
 
     ngOnInit() {

@@ -56,6 +56,7 @@
     "path": "^0.12.7",
     "rxjs": "^5.5.2",
     "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4",
     "text-mask-addons": "^3.7.1",
     "uuid": "^3.2.1",
     "zone.js": "^0.8.14"

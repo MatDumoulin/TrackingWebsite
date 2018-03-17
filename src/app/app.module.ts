@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -22,6 +23,7 @@ import { AppRoutingModule } from "./route.module";
 import { LocalStorageModule } from 'angular-2-local-storage';
 import { CoreModule } from './core/core.module';
 import { ClientCreateModule } from './pages/client-create/client-create.module';
+import { CreateRoomModule } from './pages/create-room/create-room.module';
 
 
 // Services
@@ -39,6 +41,7 @@ import { MapsManagerComponent } from './pages/maps-manager/maps-manager.componen
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { ClientComponent } from './pages/client/client.component';
 import { UserHomeComponent } from './pages/user-home/user-home.component';
+import { AuthHttpInterceptor } from './data-services/auth/auth-http-interceptor.service';
 
 
 /* To render the authentication buttons */
@@ -65,6 +68,7 @@ const firebaseUiAuthConfig: FirebaseUIAuthConfig = {
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
@@ -74,6 +78,7 @@ const firebaseUiAuthConfig: FirebaseUIAuthConfig = {
     AppRoutingModule,
     CoreModule,
     ClientCreateModule,
+    CreateRoomModule,
     // Google maps
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyAEuO9LAxQuSLlUWdW9-jAoA5_W5Xryvss',
@@ -85,6 +90,7 @@ const firebaseUiAuthConfig: FirebaseUIAuthConfig = {
     })
   ],
   providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true},
     DataServiceManager,
     CurrentUserService,
     TrackeeService,

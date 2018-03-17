@@ -26,7 +26,7 @@ export class ClientCreateComponent implements OnInit {
     }
 
     joinRoom() {
-        this.roomService.getRoom(this.currentRoom, this.password).subscribe(
+        /*this.roomService.getRoom(this.currentRoom, this.password).subscribe(
             room => {
                 if (!room) {
                     this.logger.info("Invalid room or password.");
@@ -38,12 +38,14 @@ export class ClientCreateComponent implements OnInit {
             err => {
                 this.logger.info("You don't have the permissions needed to join this room.");
                 console.log(err);
-            });
+            });*/
+
+            alert("TODO: Commented");
     }
 
     /** To move in the supervisor window. */
     createRoom() {
-        this.roomService.createRoom(this.currentRoom, this.password, {name: "Robot is testing"})
+        this.roomService.createRoom(this.currentRoom, this.password)
                         .then(res => console.log(res))
                         .catch(err => console.error(err));
     }

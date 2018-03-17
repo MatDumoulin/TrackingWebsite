@@ -1,11 +1,17 @@
-import { Component, NgZone, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, NgZone, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
 import { } from 'googlemaps';
 import { MapsAPILoader, MouseEvent } from '@agm/core';
-
-import { TrackeeService } from '../../data-services/trackee/trackee.service';
+// Models
 import { Trackee } from '../../models/trackee.model';
+// Services
+import { StoreService } from '../../core/store/store.service';
+import { BasicAction } from '../../core/store/actions/basic-action';
+import { CurrentUserService } from '../../data-services/current-user/current-user.service';
+import { TrackeeService } from '../../data-services/trackee/trackee.service';
+import { RoomService } from '../../data-services/room/room.service';
+
 
 class Marker {
     long: string;
@@ -27,7 +33,7 @@ class Marker {
     templateUrl: './maps-manager.component.html',
     styleUrls: ['./maps-manager.component.css']
 })
-export class MapsManagerComponent {
+export class MapsManagerComponent implements OnInit, OnDestroy {
     markers: Marker[];
     destination = {
         latitude: null,
@@ -45,7 +51,10 @@ export class MapsManagerComponent {
 
     constructor(public trackeeService: TrackeeService,
         private mapsAPILoader: MapsAPILoader,
-        private ngZone: NgZone) { }
+        private ngZone: NgZone,
+        private currentUserService: CurrentUserService,
+        private roomService: RoomService,
+        private storeService: StoreService) { }
 
     ngOnInit() {
         // create search FormControl
@@ -60,7 +69,7 @@ export class MapsManagerComponent {
             this.autocomplete.addListener("place_changed", () => {
                 this.ngZone.run(() => {
                     // get the place result
-                    let place: google.maps.places.PlaceResult = this.autocomplete.getPlace();
+                    const place: google.maps.places.PlaceResult = this.autocomplete.getPlace();
 
                     // verify result
                     if (place.geometry === undefined || place.geometry === null) {
@@ -78,8 +87,15 @@ export class MapsManagerComponent {
             });
         });
 
+        this.storeService.roomSubject.subscribe( (action: BasicAction) => {
+            console.log("Position changed:", action);
+        });
         // Subscribing to the trackee data service for changes
-        this.trackeeService.fetchTrackeesByRoom(4).subscribe(trackees => this.updateMarkerList(trackees));
+        // this.trackeeService.fetchTrackeesByRoom(4).subscribe(trackees => this.updateMarkerList(trackees));
+    }
+
+    ngOnDestroy() {
+        this.roomService.deleteRoom(this.currentUserService.room.name);
     }
 
     // Not working

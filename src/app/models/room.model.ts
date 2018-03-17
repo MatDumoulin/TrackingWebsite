@@ -1,11 +1,11 @@
 export class Room {
-    id?: string;
     name: string;
-    supervisor?: string;
+    password: string;
+    owner?: string;
 
-    constructor() {
-        this.id = null;
-        this.name = "";
-        this.supervisor = null;
+    constructor(name?: string, password?: string) {
+        this.name = name;
+        this.password = password;
+        this.owner = null;
     }
 }

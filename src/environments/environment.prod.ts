@@ -1,5 +1,6 @@
 export const environment = {
     production: true,
+    serverUrl: "https://geotrackingmanager.herokuapp.com",
     apiUrl: "https://geotrackingmanager.herokuapp.com/api",
     encryptionSalt: "h$!mdsa4$!78%&94i;^`¸",
     firebase: {

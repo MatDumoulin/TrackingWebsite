@@ -11,8 +11,8 @@ import { ClientComponent } from './pages/client/client.component';
 const appRoutes: Routes = [
   { path: 'login',  component: HomePageComponent, canActivate: [RedirectConnectedGuardService]},
   { path: 'home',  component: UserHomeComponent, canActivate: [AuthGuardService]},
-  { path: 'create',  component: MapsManagerComponent, canActivate: [AuthGuardService]},
-  { path: 'join',  component: ClientComponent, canActivate: [AuthGuardService] },
+  { path: 'manage',  component: MapsManagerComponent, canActivate: [AuthGuardService]},
+  { path: 'track',  component: ClientComponent, canActivate: [AuthGuardService] },
   { path: '**', redirectTo: 'login' }
 ];
 

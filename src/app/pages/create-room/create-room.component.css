@@ -1,0 +1,25 @@
+h1 {
+	margin-bottom: 5px;
+}
+
+.description {
+    color: gray;
+    width: 100%;
+}
+
+.zone-input {
+	width: 300px;
+}
+
+@media screen and (min-width: 500px) {
+	.modal-container {
+		width: 500px;
+	}
+}
+
+@media screen and (max-width: 501px) {
+	.modal-container {
+		width: 100vw;
+	}
+}
+

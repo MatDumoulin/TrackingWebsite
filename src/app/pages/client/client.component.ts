@@ -1,9 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/skip';
-
-import { ClientCreateComponent } from '../client-create/client-create.component';
 import { CurrentUserService } from '../../data-services/current-user/current-user.service';
 import { Trackee } from '../../models/trackee.model';
 
@@ -19,18 +16,11 @@ export class ClientComponent implements OnInit, OnDestroy {
     private hasOpenDialog = false;
     private userObs: Subscription;
 
-    constructor(public currentUserService: CurrentUserService, private dialog: MatDialog) { }
+    constructor(public currentUserService: CurrentUserService) { }
 
     ngOnInit() {
         console.log("Client!");
         this.userObs = this.currentUserService.userTrackee.subscribe(trackee => {
-            // The setTimeout is needed in order to prevent
-            setTimeout( () => {
-                if (!this.hasOpenDialog) {
-                    this.openCreateClientDialog();
-                    this.hasOpenDialog = true;
-                }
-            });
             this.currentTrackee = trackee;
         });
     }
@@ -41,18 +31,6 @@ export class ClientComponent implements OnInit, OnDestroy {
         this.userObs.unsubscribe();
     }
 
-    openCreateClientDialog() {
-        this.dialog.open(ClientCreateComponent, { disableClose: true }).afterClosed()
-            .subscribe(response => {
-                // Ignoring when the user cancels zone search.
-                if (response && response.hasJoined) {
-
-                    this.currentUserService.updateUser({ room: response.room.id });
-                    this.startTracking();
-                }
-            });
-    }
-
     startTracking() {
         this.isTracking = true;
 
@@ -60,12 +38,13 @@ export class ClientComponent implements OnInit, OnDestroy {
         this.emitLocation();
         this.interval = setInterval(() => {
             this.emitLocation();
+            console.log("Location changed!");
         }, 5000);
     }
 
     private emitLocation() {
         navigator.geolocation.getCurrentPosition((pos) => {
-            this.currentUserService.updateUser({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+            this.currentUserService.updateLocation({ id: 5, lat: pos.coords.latitude, lon: pos.coords.longitude });
         });
     }
 

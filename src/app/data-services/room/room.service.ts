@@ -1,60 +1,57 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../../../environments/environment";
+
+/* import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/first';
-import * as uuid from 'uuid/v1';
+import * as uuid from 'uuid/v1';*/
 
-import { DataService } from '../data-service.interface';
-import { CurrentUserService } from '../current-user/current-user.service';
+// Services
 import { CryptoService } from '../../core/crypto/crypto.service';
+import { SocketService } from '../../core/socket/socket.service';
+// Models
 import { Room } from '../../models/room.model';
 
 @Injectable()
 export class RoomService {
     private ROOM_PATH = 'rooms';
 
-    constructor(public db: AngularFireDatabase,
-                private cryptoService: CryptoService,
-                private currentUserService: CurrentUserService) {}
+    constructor(private cryptoService: CryptoService,
+        private http: HttpClient,
+        private socketService: SocketService) { }
 
-    public getRoom(id: string, password: string): Observable<Room> {
-        const key = this.getRoomKey(id, password);
-        return this.db.object<Room>(`${this.ROOM_PATH}/${key}`).valueChanges();
-    }
+    createRoom(name: string, password: string): Promise<Room> {
+        const promise = new Promise<Room>((resolve, reject) => {
+            const url = environment.apiUrl + "/room";
+            // Setting up the room to add.
+            const encryptedPassword = this.cryptoService.encrypt(password);
+            const room = new Room(name, encryptedPassword);
 
-    public createRoom(id: string, password: string, room: Room): Promise<Room> {
-        const key = this.getRoomKey(id, password);
-        const newRoom = JSON.parse( JSON.stringify(room));
-        newRoom.id = uuid(); // Giving an id to the room.
-        newRoom.supervisor = this.currentUserService.user.authId; // Noting who created this room.
-
-        return new Promise<Room>((resolve, reject) => {
-            const roomRef = this.db.object(`${this.ROOM_PATH}/${key}`);
-            const obs = roomRef.valueChanges().subscribe(res => {
-                if (!res) {
-                    obs.unsubscribe();
-                    roomRef.set(newRoom).then(() => resolve(newRoom))
-                                     .catch(err => reject(err));
-                }
-                else {
-                    reject("This room already exists");
-                }
-            });
+            this.http.post(url, room).subscribe(
+                (result: Room) => resolve(result),
+                (error) => {
+                    console.log(error);
+                    reject();
+                });
         });
 
+        return promise;
     }
 
-    /*openConnection() {
-        console.log("Room connection is opening");
-        this.roomObservable = this.fetchRooms();
+    deleteRoom(name: string): Promise<any> {
+        const promise = new Promise<any>( (resolve, reject) => {
+            const url = environment.apiUrl + "/room/" + name;
+
+            this.http.delete(url).subscribe(
+                (result: boolean) => resolve(result),
+                (error) => {
+                    console.log(error);
+                    reject();
+                });
+        });
+
+        return promise;
     }
 
-    closeConnection() {
-        console.log("Room connection is closing");
-        this.roomObservable = null;
-    }*/
-
-    private getRoomKey(id: string, password: string): string {
-        return this.cryptoService.encrypt(id + "_" + password);
-    }
 }

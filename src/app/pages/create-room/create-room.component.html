@@ -1,0 +1,22 @@
+<form class="modal-container" #form="ngForm" autocomplete="off">
+	<div>
+		<h1 mat-dialog-title>Enter the information of the room to create</h1>
+		<p class="description">Any user will be able to join the room if they enter these credentials.</p>
+	</div>
+
+	<div class="full-width" mat-dialog-content>
+		<mat-form-field class="zone-input">
+			<input matInput placeholder="Enter room name" [(ngModel)]="room.name"  name="roomInput" #roomInput="ngModel" required>
+			<mat-error *ngIf="!roomInput.valid">You must enter a room name</mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="zone-input">
+			<input type="password" matInput placeholder="Room password" [(ngModel)]="room.password"  name="roomPassword" #roomPassword="ngModel" required>
+			<mat-error *ngIf="!roomPassword.valid">You must enter a password</mat-error>
+		</mat-form-field>
+	</div>
+
+	<div mat-dialog-actions align="end">
+		<button mat-button color="primary" (click)="createRoom()" [disabled]="!form.valid">Join</button>
+	</div>
+</form>
