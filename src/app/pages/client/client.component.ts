@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/skip';
 import { CurrentUserService } from '../../data-services/current-user/current-user.service';
-import { Trackee } from '../../models/trackee.model';
+import { UserProfile } from '../../models/user-profile.model';
 
 @Component({
     selector: 'tm-client',
@@ -11,8 +11,8 @@ import { Trackee } from '../../models/trackee.model';
 })
 export class ClientComponent implements OnInit, OnDestroy {
     interval: any;
-    isTracking: boolean = null;
-    currentTrackee: Trackee = null;
+    isTracking = false;
+    currentTrackee: UserProfile = null;
     private hasOpenDialog = false;
     private userObs: Subscription;
 
@@ -20,9 +20,10 @@ export class ClientComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         console.log("Client!");
-        this.userObs = this.currentUserService.userTrackee.subscribe(trackee => {
-            this.currentTrackee = trackee;
+        this.userObs = this.currentUserService.getUser().subscribe(userProfile => {
+            this.currentTrackee = userProfile;
         });
+        this.startTracking();
     }
 
     ngOnDestroy() {
@@ -44,7 +45,7 @@ export class ClientComponent implements OnInit, OnDestroy {
 
     private emitLocation() {
         navigator.geolocation.getCurrentPosition((pos) => {
-            this.currentUserService.updateLocation({ id: 5, lat: pos.coords.latitude, lon: pos.coords.longitude });
+            this.currentUserService.updateLocation({ id: this.currentTrackee.authId, lat: pos.coords.latitude, lon: pos.coords.longitude });
         });
     }
 

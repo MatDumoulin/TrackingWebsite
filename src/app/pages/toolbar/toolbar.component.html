@@ -6,9 +6,9 @@
         </div>
 
 
-		<button mat-button *ngIf="authService.isLoggedIn()" (click)="authService.logout()">
-			<img class="profile-picture" [src]="currentUserService.user.profilePicture">
-			{{ currentUserService.user.fullName }}
+		<button mat-button *ngIf="authService.isLoggedIn() && currentUser" (click)="authService.logout()">
+			<img class="profile-picture" [src]="currentUser.profilePicture">
+			{{ currentUser.fullName }}
         </button>
 
         <!--<firebase-ui *ngIf="!authService.isLoggedIn()"></firebase-ui>-->

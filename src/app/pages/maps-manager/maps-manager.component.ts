@@ -3,6 +3,8 @@ import { FormControl } from '@angular/forms';
 
 import { } from 'googlemaps';
 import { MapsAPILoader, MouseEvent } from '@agm/core';
+// Rxjs
+import { Subscription } from 'rxjs/Subscription';
 // Models
 import { Trackee } from '../../models/trackee.model';
 // Services
@@ -45,6 +47,7 @@ export class MapsManagerComponent implements OnInit, OnDestroy {
     searchControl: FormControl;
     autocomplete: any;
     private geocoder: any;
+    private subscriptions: Subscription[] = [];
 
     @ViewChild("search")
     public searchElementRef: ElementRef;
@@ -87,15 +90,17 @@ export class MapsManagerComponent implements OnInit, OnDestroy {
             });
         });
 
-        this.storeService.roomSubject.subscribe( (action: BasicAction) => {
-            console.log("Position changed:", action);
-        });
-        // Subscribing to the trackee data service for changes
-        // this.trackeeService.fetchTrackeesByRoom(4).subscribe(trackees => this.updateMarkerList(trackees));
+        this.subscriptions.push(this.storeService.roomSubject.subscribe((action: BasicAction) => {
+            this.updatePositionOfUser(action);
+        }));
     }
 
     ngOnDestroy() {
         this.roomService.deleteRoom(this.currentUserService.room.name);
+        // Cleaning up streams.
+        for (const sub of this.subscriptions) {
+            sub.unsubscribe();
+        }
     }
 
     // Not working
@@ -139,6 +144,12 @@ export class MapsManagerComponent implements OnInit, OnDestroy {
         });
     }
 
+    private updatePositionOfUser(updateAction: BasicAction) {
+        console.log("Position changed:", updateAction);
+
+
+    }
+
     private updateMarkerList(trackees: Trackee[]) {
         this.markers = [];
         for (const trackee of trackees) {
@@ -151,9 +162,9 @@ export class MapsManagerComponent implements OnInit, OnDestroy {
     private updateDestinationInMap() {
         this.searchControl.setValue(this.destination.location);
         this.markers[this.destination.indexInMarkers] = new Marker(this.destination.longitude,
-                                                                   this.destination.latitude,
-                                                                   false,
-                                                                   this.destination.location);
+            this.destination.latitude,
+            false,
+            this.destination.location);
     }
 
     private getMarkerIcon(marker: Marker) {

@@ -27,7 +27,6 @@ import { CreateRoomModule } from './pages/create-room/create-room.module';
 
 
 // Services
-import { DataServiceManager } from './data-services/data-service-manager/data-service-manager.service';
 import { CurrentUserService } from './data-services/current-user/current-user.service';
 import { TrackeeService } from './data-services/trackee/trackee.service';
 import { RoomService } from './data-services/room/room.service';
@@ -91,7 +90,6 @@ const firebaseUiAuthConfig: FirebaseUIAuthConfig = {
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true},
-    DataServiceManager,
     CurrentUserService,
     TrackeeService,
     RoomService

@@ -14,7 +14,8 @@ export class SocketService {
     }
 
     connect(userAuthId: string) {
-        this.socket = io(environment.serverUrl, {reconnect: false});
+        console.log("Trying to connect!");
+        this.socket = io(environment.serverUrl, {reconnection: false});
         // Once connected,
         this.socket.once('connect', () => {
             // Send the user id to the server.

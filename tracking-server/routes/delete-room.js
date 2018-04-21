@@ -17,7 +17,7 @@ function routeFactory() {
 
             // If there is no matching room, send an error.
             if(!room) {
-                res.status(404).send({error: "Room not found"});
+                res.status(404).send({errorMessage: "Room not found"});
                 return;
             }
             console.log(room, socket.id);
@@ -33,11 +33,11 @@ function routeFactory() {
             }
             else {
                 // Else, emit an error message.
-                res.status(401).send({error: "You are not the owner of this room"});
+                res.status(401).send({errorMessage: "You are not the owner of this room"});
             }
         }
         else {
-            res.status(401).send({error: "Socket not found"});
+            res.status(401).send({errorMessage: "Socket not found"});
         }
     }
 }

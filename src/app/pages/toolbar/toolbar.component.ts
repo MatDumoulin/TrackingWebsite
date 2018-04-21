@@ -1,8 +1,10 @@
-import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSidenav } from '@angular/material';
 import { AuthService } from '../../data-services/auth/auth.service';
 import { CurrentUserService } from '../../data-services/current-user/current-user.service';
+import { UserProfile } from '../../models/user-profile.model';
+import { Subscription } from 'rxjs/Subscription';
 
 declare const gapi: any;
 
@@ -11,14 +13,19 @@ declare const gapi: any;
     templateUrl: './toolbar.component.html',
     styleUrls: ['./toolbar.component.css']
 })
-export class ToolbarComponent implements OnInit, AfterViewInit {
-
+export class ToolbarComponent implements OnInit, OnDestroy, AfterViewInit {
+    currentUser: UserProfile;
     @Input()
     sidenav: MatSidenav;
 
+    private subscriptions: Subscription[] = [];
+
     constructor(public authService: AuthService,
-                public currentUserService: CurrentUserService,
-                public router: Router) { }
+        public currentUserService: CurrentUserService,
+        public router: Router) {
+
+        this.subscriptions.push(this.currentUserService.getUser().subscribe(userProfile => this.currentUser = userProfile));
+    }
 
     ngOnInit() {
     }
@@ -31,7 +38,11 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
             'longtitle': true,
             'theme': 'light',
             'onsuccess': param => this.authService.signInWithGoogle(param)
-          });
+        });
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 
 }

@@ -24,11 +24,11 @@ function routeFactory() {
             }
             else {
                 // Else, emit an error message. 409 = Conflict.
-                res.status(409).send({error: "Name already exists"});
+                res.status(409).send({errorMessage: "Name already exists"});
             }
         }
         else {
-            res.status(401).send({error: "Socket not found"});
+            res.status(401).send({errorMessage: "Socket not found"});
         }
     }
 }

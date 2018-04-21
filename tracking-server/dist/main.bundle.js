@@ -154,7 +154,6 @@ var core_module_1 = __webpack_require__("../../../../../src/app/core/core.module
 var client_create_module_1 = __webpack_require__("../../../../../src/app/pages/client-create/client-create.module.ts");
 var create_room_module_1 = __webpack_require__("../../../../../src/app/pages/create-room/create-room.module.ts");
 // Services
-var data_service_manager_service_1 = __webpack_require__("../../../../../src/app/data-services/data-service-manager/data-service-manager.service.ts");
 var current_user_service_1 = __webpack_require__("../../../../../src/app/data-services/current-user/current-user.service.ts");
 var trackee_service_1 = __webpack_require__("../../../../../src/app/data-services/trackee/trackee.service.ts");
 var room_service_1 = __webpack_require__("../../../../../src/app/data-services/room/room.service.ts");
@@ -216,7 +215,6 @@ var AppModule = (function () {
             ],
             providers: [
                 { provide: http_1.HTTP_INTERCEPTORS, useClass: auth_http_interceptor_service_1.AuthHttpInterceptor, multi: true },
-                data_service_manager_service_1.DataServiceManager,
                 current_user_service_1.CurrentUserService,
                 trackee_service_1.TrackeeService,
                 room_service_1.RoomService
@@ -541,7 +539,8 @@ var SocketService = (function () {
     }
     SocketService.prototype.connect = function (userAuthId) {
         var _this = this;
-        this.socket = io(environment_1.environment.serverUrl, { reconnect: false });
+        console.log("Trying to connect!");
+        this.socket = io(environment_1.environment.serverUrl, { reconnection: false });
         // Once connected,
         this.socket.once('connect', function () {
             // Send the user id to the server.
@@ -817,34 +816,16 @@ var angular_2_local_storage_1 = __webpack_require__("../../../../angular-2-local
 var moment = __webpack_require__("../../../../moment/moment.js");
 // Services
 var current_user_service_1 = __webpack_require__("../../../../../src/app/data-services/current-user/current-user.service.ts");
-var data_service_manager_service_1 = __webpack_require__("../../../../../src/app/data-services/data-service-manager/data-service-manager.service.ts");
 var google_auth_service_1 = __webpack_require__("../../../../../src/app/data-services/auth/google-auth/google-auth.service.ts");
 var AuthService = (function () {
-    function AuthService(router, _dataServiceManager, currentUserService, googleAuthService, zone, localStorageService) {
+    function AuthService(router, currentUserService, googleAuthService, zone, localStorageService) {
         this.router = router;
-        this._dataServiceManager = _dataServiceManager;
         this.currentUserService = currentUserService;
         this.googleAuthService = googleAuthService;
         this.zone = zone;
         this.localStorageService = localStorageService;
         this.hasLoaded = false;
         this.restoreFromSession();
-        /*this.authState = _firebaseAuth.authState;
-
-        this.authState.subscribe((user) => {
-            if (user) {
-                this._firebaseDatabase.database.goOnline();
-
-                this.currentUserService.user = user;
-
-                this.router.navigate(['/home']);
-            }
-            else {
-                this.currentUserService.user = null;
-                this.router.navigate(['/']);
-            }
-            this.hasLoaded = true;
-        });*/
     }
     AuthService.prototype.getAuthStateChangedObservable = function () {
         return this.authState;
@@ -854,14 +835,17 @@ var AuthService = (function () {
         // We have to run this code inside of an Angular zone since the Google api callback does not run in Angular.
         this.zone.run(function () {
             _this.googleAuthService.onSignedIn(googleUser).subscribe(function (response) {
-                _this.currentUserService.user = response.user;
+                // If the user has changed with this sign in. This can occur if the user was restored from local storage.
+                if (!_this.currentUserService.user || !response.user || _this.currentUserService.user.authId !== response.user.authId) {
+                    _this.currentUserService.user = response.user;
+                }
                 _this.setSession(response);
                 _this.router.navigate(['/home']);
             });
         });
     };
     AuthService.prototype.isLoggedIn = function () {
-        return this.currentUserService.user != null || this.localStorageService.get("user") != null;
+        return this.currentUserService.getUser().value !== null || this.localStorageService.get("user") !== null;
     };
     AuthService.prototype.logout = function () {
         var _this = this;
@@ -897,7 +881,6 @@ var AuthService = (function () {
     AuthService = __decorate([
         core_1.Injectable(),
         __metadata("design:paramtypes", [router_1.Router,
-            data_service_manager_service_1.DataServiceManager,
             current_user_service_1.CurrentUserService,
             google_auth_service_1.GoogleAuthService,
             core_1.NgZone,
@@ -1040,37 +1023,39 @@ var CurrentUserService = (function () {
     function CurrentUserService(socketService, trackeeService) {
         this.socketService = socketService;
         this.trackeeService = trackeeService;
+        this._user = new BehaviorSubject_1.BehaviorSubject(null);
         this._userTrackee = new BehaviorSubject_1.BehaviorSubject(null);
     }
     Object.defineProperty(CurrentUserService.prototype, "user", {
         get: function () {
-            return this._user;
+            return this._user.getValue();
         },
         set: function (currentUser) {
-            var _this = this;
-            this._user = currentUser;
-            // Subscribing to the trackee value for the corresponding user.
-            if (this._latestTrackeeSubscription) {
-                this._latestTrackeeSubscription.unsubscribe();
-            }
+            this._user.next(currentUser);
             // The user is set to null when he disconnects.
-            if (this.user) {
-                this.socketService.connect(this.user.authId);
-                this._latestTrackeeSubscription = this.trackeeService.fetchTrackee(this.user.authId).subscribe(function (trackee) {
+            if (this._user.value) {
+                this.socketService.connect(this._user.value.authId);
+                /* this._latestTrackeeSubscription = this.trackeeService.fetchTrackee(this.user.authId).subscribe(trackee => {
                     // If the trackee exists, emit it.
                     if (trackee) {
-                        _this._userTrackee.next(trackee);
+                        this._userTrackee.next(trackee);
                     }
+                    // Otherwise, create a new trackee for the user.
                     else {
                         // this.trackeeService.addTrackee(this.user.authId, {name: this.user.fullName});  TODO
                     }
-                });
+                }); */
             }
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(CurrentUserService.prototype, "room", {
+        // Gets the user infos if they are already in the database. These infos
+        // are coming from the trackee table.
+        /* get userTrackee(): BehaviorSubject<Trackee> {
+            return this._userTrackee;
+        }*/
         get: function () {
             return this._room;
         },
@@ -1080,15 +1065,9 @@ var CurrentUserService = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(CurrentUserService.prototype, "userTrackee", {
-        // Gets the user infos if they are already in the database. These infos
-        // are coming from the trackee table.
-        get: function () {
-            return this._userTrackee;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    CurrentUserService.prototype.getUser = function () {
+        return this._user;
+    };
     CurrentUserService.prototype.updateLocation = function (newLocation) {
         // this.trackeeService.updateTrackee(this.user.authId, changes).then(res => console.log(res));
         this.socketService.emit("location", newLocation);
@@ -1103,45 +1082,6 @@ var CurrentUserService = (function () {
     return CurrentUserService;
 }());
 exports.CurrentUserService = CurrentUserService;
-
-
-/***/ }),
-
-/***/ "../../../../../src/app/data-services/data-service-manager/data-service-manager.service.ts":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var core_1 = __webpack_require__("../../../core/esm5/core.js");
-// Services
-var room_service_1 = __webpack_require__("../../../../../src/app/data-services/room/room.service.ts");
-var DataServiceManager = (function () {
-    function DataServiceManager(roomService) {
-        this.roomService = roomService;
-    }
-    DataServiceManager.prototype.openDatabaseConnections = function () {
-        // this.roomService.openConnection();
-    };
-    DataServiceManager.prototype.closeDatabaseConnections = function () {
-        // this.roomService.closeConnection();
-    };
-    DataServiceManager = __decorate([
-        core_1.Injectable(),
-        __metadata("design:paramtypes", [room_service_1.RoomService])
-    ], DataServiceManager);
-    return DataServiceManager;
-}());
-exports.DataServiceManager = DataServiceManager;
 
 
 /***/ }),
@@ -1168,6 +1108,7 @@ var environment_1 = __webpack_require__("../../../../../src/environments/environ
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/first';
 import * as uuid from 'uuid/v1';*/
+__webpack_require__("../../../../rxjs/_esm5/add/operator/take.js");
 // Services
 var crypto_service_1 = __webpack_require__("../../../../../src/app/core/crypto/crypto.service.ts");
 var socket_service_1 = __webpack_require__("../../../../../src/app/core/socket/socket.service.ts");
@@ -1187,7 +1128,7 @@ var RoomService = (function () {
             // Setting up the room to add.
             var encryptedPassword = _this.cryptoService.encrypt(password);
             var room = new room_model_1.Room(name, encryptedPassword);
-            _this.http.post(url, room).subscribe(function (result) { return resolve(result); }, function (error) {
+            _this.http.post(url, room).take(1).subscribe(function (result) { return resolve(result); }, function (error) {
                 console.log(error);
                 reject();
             });
@@ -1198,9 +1139,36 @@ var RoomService = (function () {
         var _this = this;
         var promise = new Promise(function (resolve, reject) {
             var url = environment_1.environment.apiUrl + "/room/" + name;
-            _this.http.delete(url).subscribe(function (result) { return resolve(result); }, function (error) {
+            _this.http.delete(url).take(1).subscribe(function (result) { return resolve(result); }, function (error) {
                 console.log(error);
                 reject();
+            });
+        });
+        return promise;
+    };
+    /**
+     * Tries to connect the current user to the given room.
+     * @param name The name of the room to join.
+     * @param password The password of the room to join.
+     * @returns If connection succeeds, the room information is returned.
+     *          Otherwise, an error object is sent with the 'errorMessage' and 'isRelatedToCredentials' params.
+     */
+    RoomService.prototype.joinRoom = function (name, password) {
+        var _this = this;
+        var promise = new Promise(function (resolve, reject) {
+            var url = environment_1.environment.apiUrl + "/room/" + name;
+            var encryptedPassword = _this.cryptoService.encrypt(password);
+            _this.http.post(url, { name: name, password: encryptedPassword }).take(1).subscribe(function (result) { return resolve(result); }, function (errorResponse) {
+                if (errorResponse.status === 404 || errorResponse.status === 403) {
+                    reject({ isRelatedToCredentials: true });
+                }
+                else if (errorResponse.status === 401) {
+                    reject({ errorMessage: "You must be logged in to join a room.", isRelatedToCredentials: false });
+                }
+                else {
+                    console.log(errorResponse);
+                    reject({ errorMessage: "An error occurred.", isRelatedToCredentials: false });
+                }
             });
         });
         return promise;
@@ -1330,9 +1298,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
+var forms_1 = __webpack_require__("../../../forms/esm5/forms.js");
 var material_1 = __webpack_require__("../../../material/esm5/material.es5.js");
-var room_service_1 = __webpack_require__("../../../../../src/app/data-services/room/room.service.ts");
+// Services
 var logger_service_1 = __webpack_require__("../../../../../src/app/core/logger/logger.service.ts");
+var room_service_1 = __webpack_require__("../../../../../src/app/data-services/room/room.service.ts");
 var ClientCreateComponent = (function () {
     function ClientCreateComponent(roomService, logger, dialogRef) {
         this.roomService = roomService;
@@ -1343,20 +1313,24 @@ var ClientCreateComponent = (function () {
     ClientCreateComponent.prototype.ngOnInit = function () {
     };
     ClientCreateComponent.prototype.joinRoom = function () {
-        /*this.roomService.getRoom(this.currentRoom, this.password).subscribe(
-            room => {
-                if (!room) {
-                    this.logger.info("Invalid room or password.");
-                }
-                else {
-                    this.dialogRef.close({ room: room, hasJoined: true });
-                }
-            },
-            err => {
-                this.logger.info("You don't have the permissions needed to join this room.");
-                console.log(err);
-            });*/
-        alert("TODO: Commented");
+        var _this = this;
+        this.roomService.joinRoom(this.currentRoom, this.password)
+            .then(function (room) {
+            if (!room) {
+                _this.logger.info("Invalid room or password.");
+            }
+            else {
+                _this.dialogRef.close({ room: room, hasJoined: true });
+            }
+        })
+            .catch(function (error) {
+            if (error.isRelatedToCredentials) {
+                _this.logger.info("Invalid room or password.");
+            }
+            else {
+                _this.logger.info(error.errorMessage);
+            }
+        });
     };
     /** To move in the supervisor window. */
     ClientCreateComponent.prototype.createRoom = function () {
@@ -1364,6 +1338,10 @@ var ClientCreateComponent = (function () {
             .then(function (res) { return console.log(res); })
             .catch(function (err) { return console.error(err); });
     };
+    __decorate([
+        core_1.ViewChild("form"),
+        __metadata("design:type", forms_1.NgForm)
+    ], ClientCreateComponent.prototype, "ngForm", void 0);
     ClientCreateComponent = __decorate([
         core_1.Component({
             selector: 'tm-client-create',
@@ -1450,7 +1428,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/pages/client/client.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "\r\n<div class=\"client-container\">\r\n\t<div class=\"fill-space\">\r\n\t\t<span *ngIf=\"currentTrackee\">Transmitting data!</span>\r\n\t\t<ul>\r\n            <li *ngIf=\"currentTrackee\">Lat: {{currentTrackee.lat | json}}</li>\r\n            <li *ngIf=\"currentTrackee\">Lon: {{currentTrackee.lon | json}}</li>\r\n\t\t</ul>\r\n    </div>\r\n\r\n\t<div class=\"footer\">\r\n        <button mat-fab color=\"primary\" (click)=\"toggleTracking()\" *ngIf=\"isTracking !== null\" [matTooltip]=\"getTrackingTooltip()\">\r\n            <mat-icon *ngIf=\"isTracking\">pause</mat-icon>\r\n            <mat-icon *ngIf=\"!isTracking\">wifi</mat-icon>\r\n        </button>\r\n\t</div>\r\n</div>\r\n"
+module.exports = "\r\n<div class=\"client-container\">\r\n\t<div class=\"fill-space\">\r\n\t\t<span *ngIf=\"currentTrackee\">Transmitting data!</span>\r\n    </div>\r\n\r\n\t<div class=\"footer\">\r\n        <button mat-fab color=\"primary\" (click)=\"toggleTracking()\" *ngIf=\"isTracking !== null\" [matTooltip]=\"getTrackingTooltip()\">\r\n            <mat-icon *ngIf=\"isTracking\">pause</mat-icon>\r\n            <mat-icon *ngIf=\"!isTracking\">wifi</mat-icon>\r\n        </button>\r\n\t</div>\r\n</div>\r\n"
 
 /***/ }),
 
@@ -1475,16 +1453,17 @@ var current_user_service_1 = __webpack_require__("../../../../../src/app/data-se
 var ClientComponent = (function () {
     function ClientComponent(currentUserService) {
         this.currentUserService = currentUserService;
-        this.isTracking = null;
+        this.isTracking = false;
         this.currentTrackee = null;
         this.hasOpenDialog = false;
     }
     ClientComponent.prototype.ngOnInit = function () {
         var _this = this;
         console.log("Client!");
-        this.userObs = this.currentUserService.userTrackee.subscribe(function (trackee) {
-            _this.currentTrackee = trackee;
+        this.userObs = this.currentUserService.getUser().subscribe(function (userProfile) {
+            _this.currentTrackee = userProfile;
         });
+        this.startTracking();
     };
     ClientComponent.prototype.ngOnDestroy = function () {
         // Cleaning up the resources used.
@@ -1504,7 +1483,7 @@ var ClientComponent = (function () {
     ClientComponent.prototype.emitLocation = function () {
         var _this = this;
         navigator.geolocation.getCurrentPosition(function (pos) {
-            _this.currentUserService.updateLocation({ id: 5, lat: pos.coords.latitude, lon: pos.coords.longitude });
+            _this.currentUserService.updateLocation({ id: _this.currentTrackee.authId, lat: pos.coords.latitude, lon: pos.coords.longitude });
         });
     };
     ClientComponent.prototype.pauseTracking = function () {
@@ -1806,6 +1785,7 @@ var MapsManagerComponent = (function () {
             location: null,
             indexInMarkers: 0
         };
+        this.subscriptions = [];
     }
     MapsManagerComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -1834,14 +1814,17 @@ var MapsManagerComponent = (function () {
                 });
             });
         });
-        this.storeService.roomSubject.subscribe(function (action) {
-            console.log("Position changed:", action);
-        });
-        // Subscribing to the trackee data service for changes
-        // this.trackeeService.fetchTrackeesByRoom(4).subscribe(trackees => this.updateMarkerList(trackees));
+        this.subscriptions.push(this.storeService.roomSubject.subscribe(function (action) {
+            _this.updatePositionOfUser(action);
+        }));
     };
     MapsManagerComponent.prototype.ngOnDestroy = function () {
         this.roomService.deleteRoom(this.currentUserService.room.name);
+        // Cleaning up streams.
+        for (var _i = 0, _a = this.subscriptions; _i < _a.length; _i++) {
+            var sub = _a[_i];
+            sub.unsubscribe();
+        }
     };
     // Not working
     MapsManagerComponent.prototype.onMarkerClick = function (infoWindow) {
@@ -1878,6 +1861,9 @@ var MapsManagerComponent = (function () {
                 _this.updateDestinationInMap();
             });
         });
+    };
+    MapsManagerComponent.prototype.updatePositionOfUser = function (updateAction) {
+        console.log("Position changed:", updateAction);
     };
     MapsManagerComponent.prototype.updateMarkerList = function (trackees) {
         this.markers = [];
@@ -1940,7 +1926,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/pages/toolbar/toolbar.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<mat-toolbar color=\"primary\">\r\n\t<mat-toolbar-row class=\"toolbar\">\r\n        <div class=\"section\">\r\n            <button mat-icon-button *ngIf=\"router.url !== '/login'\" (click)=\"sidenav.toggle()\"><mat-icon>menu</mat-icon></button>\r\n            <h1 [routerLink]=\"['/home']\">Tracking Manager</h1>\r\n        </div>\r\n\r\n\r\n\t\t<button mat-button *ngIf=\"authService.isLoggedIn()\" (click)=\"authService.logout()\">\r\n\t\t\t<img class=\"profile-picture\" [src]=\"currentUserService.user.profilePicture\">\r\n\t\t\t{{ currentUserService.user.fullName }}\r\n        </button>\r\n\r\n        <!--<firebase-ui *ngIf=\"!authService.isLoggedIn()\"></firebase-ui>-->\r\n        <div id=\"signin-with-google\" [hidden]=\"authService.isLoggedIn()\"></div>\r\n\t</mat-toolbar-row>\r\n</mat-toolbar>\r\n"
+module.exports = "<mat-toolbar color=\"primary\">\r\n\t<mat-toolbar-row class=\"toolbar\">\r\n        <div class=\"section\">\r\n            <button mat-icon-button *ngIf=\"router.url !== '/login'\" (click)=\"sidenav.toggle()\"><mat-icon>menu</mat-icon></button>\r\n            <h1 [routerLink]=\"['/home']\">Tracking Manager</h1>\r\n        </div>\r\n\r\n\r\n\t\t<button mat-button *ngIf=\"authService.isLoggedIn() && currentUser\" (click)=\"authService.logout()\">\r\n\t\t\t<img class=\"profile-picture\" [src]=\"currentUser.profilePicture\">\r\n\t\t\t{{ currentUser.fullName }}\r\n        </button>\r\n\r\n        <!--<firebase-ui *ngIf=\"!authService.isLoggedIn()\"></firebase-ui>-->\r\n        <div id=\"signin-with-google\" [hidden]=\"authService.isLoggedIn()\"></div>\r\n\t</mat-toolbar-row>\r\n</mat-toolbar>\r\n"
 
 /***/ }),
 
@@ -1966,9 +1952,12 @@ var auth_service_1 = __webpack_require__("../../../../../src/app/data-services/a
 var current_user_service_1 = __webpack_require__("../../../../../src/app/data-services/current-user/current-user.service.ts");
 var ToolbarComponent = (function () {
     function ToolbarComponent(authService, currentUserService, router) {
+        var _this = this;
         this.authService = authService;
         this.currentUserService = currentUserService;
         this.router = router;
+        this.subscriptions = [];
+        this.subscriptions.push(this.currentUserService.getUser().subscribe(function (userProfile) { return _this.currentUser = userProfile; }));
     }
     ToolbarComponent.prototype.ngOnInit = function () {
     };
@@ -1982,6 +1971,9 @@ var ToolbarComponent = (function () {
             'theme': 'light',
             'onsuccess': function (param) { return _this.authService.signInWithGoogle(param); }
         });
+    };
+    ToolbarComponent.prototype.ngOnDestroy = function () {
+        this.subscriptions.forEach(function (sub) { return sub.unsubscribe(); });
     };
     __decorate([
         core_1.Input(),

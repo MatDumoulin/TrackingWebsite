@@ -13,7 +13,7 @@ import { UserProfile } from '../../models/user-profile.model';
 
 @Injectable()
 export class CurrentUserService {
-    private _user: UserProfile;
+    private _user = new BehaviorSubject<UserProfile>(null);
     private _userTrackee = new BehaviorSubject<Trackee>(null);
     private _latestTrackeeSubscription: Subscription;
     private _room: Room;
@@ -23,17 +23,13 @@ export class CurrentUserService {
     }
 
     set user(currentUser: UserProfile) {
-        this._user = currentUser;
 
-        // Subscribing to the trackee value for the corresponding user.
-        if (this._latestTrackeeSubscription) {
-            this._latestTrackeeSubscription.unsubscribe();
-        }
+        this._user.next(currentUser);
 
         // The user is set to null when he disconnects.
-        if (this.user) {
-            this.socketService.connect(this.user.authId);
-            this._latestTrackeeSubscription = this.trackeeService.fetchTrackee(this.user.authId).subscribe(trackee => {
+        if (this._user.value) {
+            this.socketService.connect(this._user.value.authId);
+            /* this._latestTrackeeSubscription = this.trackeeService.fetchTrackee(this.user.authId).subscribe(trackee => {
                 // If the trackee exists, emit it.
                 if (trackee) {
                     this._userTrackee.next(trackee);
@@ -42,23 +38,27 @@ export class CurrentUserService {
                 else {
                     // this.trackeeService.addTrackee(this.user.authId, {name: this.user.fullName});  TODO
                 }
-            });
+            }); */
         }
+    }
+
+    get user(): UserProfile | null {
+        return this._user.getValue();
     }
 
     set room(room: Room) {
         this._room = room;
     }
 
-    get user(): UserProfile {
+    getUser(): BehaviorSubject<UserProfile> {
         return this._user;
     }
 
     // Gets the user infos if they are already in the database. These infos
     // are coming from the trackee table.
-    get userTrackee(): BehaviorSubject<Trackee> {
+    /* get userTrackee(): BehaviorSubject<Trackee> {
         return this._userTrackee;
-    }
+    }*/
 
     get room(): Room {
         return this._room;

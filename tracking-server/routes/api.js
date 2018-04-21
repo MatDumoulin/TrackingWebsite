@@ -6,6 +6,7 @@ const jwtMiddleware = require('express-jwt');
 const login = require('./login');
 const configs = require('./config');
 const createRoom = require('./create-room');
+const joinRoom = require('./join-room');
 const deleteRoom = require('./delete-room');
 
 
@@ -26,7 +27,8 @@ function apiManager(db) {
     router.post('/login', login(usersCollection));
     router.get('/configs', configs);
     router.post('/room', createRoom());
-    router.route('/room/:name').delete(deleteRoom());
+    router.route('/room/:name').post(joinRoom())
+                               .delete(deleteRoom());
 
     return router;
 }

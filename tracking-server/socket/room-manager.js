@@ -13,8 +13,8 @@ class RoomManager {
 
     // Returns true if there is no room with this name.
     create(name, password, ownerSocketId) {
-        if(this._rooms.get(name) === undefined) {
-            const newRoom = new Room(password, ownerSocketId);
+        if (this._rooms.get(name) === undefined) {
+            const newRoom = new Room(name, password, ownerSocketId);
             this._rooms.set(name, newRoom);
 
             return newRoom;
@@ -28,18 +28,52 @@ class RoomManager {
     join(name, password, socket) {
         const room = this._rooms.get(name);
 
-        if(room && room.password === password) {
+        if (room && room.password === password) {
             room.members.push(socket.id);
             return true;
         }
-        else {
-            return false;
-        }
+
+        return false;
     }
 
     // Returns true if the deletion was successful.
     delete(name) {
         return this._rooms.delete(name);
+    }
+
+    // Gets all rooms of the user.
+    getRoomsOfUser(userSocketId) {
+        const allRoomsOfUser = {
+            connectedAsTrackee: [],
+            connectedAsManager: []
+        };
+
+        this._rooms.forEach(room => {
+            // First, checking if he is a trackee of the room.
+            const trackeeIndexOfUser = room.members.findIndex(member => member === userSocketId);
+            if (trackeeIndexOfUser !== -1) {
+                allRoomsOfUser.connectedAsTrackee.push(room);
+            }
+            // Then, checking if he is a manager
+            if (room.owner === userSocketId) {
+                allRoomsOfUser.connectedAsManager.push(room);
+            }
+        });
+
+        return allRoomsOfUser;
+    }
+
+    // Removes the user from any room. If he is the owner of a room, it closes the room.
+    removeUserFromRooms(userSocketId) {
+        const allRoomsOfUser = this.getRoomsOfUser(userSocketId);
+
+        for (const roomAsTrackee of allRoomsOfUser.connectedAsTrackee) {
+            roomAsTrackee.members = roomAsTrackee.members.filter(user => user !== userSocketId);
+        }
+
+        for (const roomAsManager of allRoomsOfUser.connectedAsManager) {
+            this.delete(roomAsManager.name);
+        }
     }
 }
 

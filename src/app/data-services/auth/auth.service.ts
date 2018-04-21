@@ -11,7 +11,6 @@ import * as moment from 'moment';
 
 // Services
 import { CurrentUserService } from '../current-user/current-user.service';
-import { DataServiceManager } from '../data-service-manager/data-service-manager.service';
 import { GoogleAuthService } from './google-auth/google-auth.service';
 // Models
 import { UserProfile } from '../../models/user-profile.model';
@@ -25,29 +24,12 @@ export class AuthService {
 
     constructor(
         private router: Router,
-        private _dataServiceManager: DataServiceManager,
         private currentUserService: CurrentUserService,
         private googleAuthService: GoogleAuthService,
         private zone: NgZone,
         private localStorageService: LocalStorageService) {
 
         this.restoreFromSession();
-        /*this.authState = _firebaseAuth.authState;
-
-        this.authState.subscribe((user) => {
-            if (user) {
-                this._firebaseDatabase.database.goOnline();
-
-                this.currentUserService.user = user;
-
-                this.router.navigate(['/home']);
-            }
-            else {
-                this.currentUserService.user = null;
-                this.router.navigate(['/']);
-            }
-            this.hasLoaded = true;
-        });*/
     }
 
     getAuthStateChangedObservable(): any {
@@ -58,7 +40,11 @@ export class AuthService {
         // We have to run this code inside of an Angular zone since the Google api callback does not run in Angular.
         this.zone.run(() => {
             this.googleAuthService.onSignedIn(googleUser).subscribe((response: any) => {
-                this.currentUserService.user = response.user;
+                // If the user has changed with this sign in. This can occur if the user was restored from local storage.
+                if (!this.currentUserService.user || !response.user || this.currentUserService.user.authId !== response.user.authId) {
+                    this.currentUserService.user = response.user;
+                }
+
                 this.setSession(response);
                 this.router.navigate(['/home']);
             });
@@ -66,7 +52,7 @@ export class AuthService {
     }
 
     isLoggedIn() {
-        return this.currentUserService.user != null || this.localStorageService.get("user") != null;
+        return this.currentUserService.getUser().value !== null || this.localStorageService.get("user") !== null;
     }
 
     logout() {
