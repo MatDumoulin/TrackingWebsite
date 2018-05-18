@@ -1,13 +1,13 @@
 export class Trackee {
-	name: string;
-	lon: string;
-	lat: string;
-	isApproved: boolean;
+    _id: string;
+    name: string;
+    lon: string;
+    lat: string;
 
-	constructor() {
-		this.name = "";
-		this.lon = "";
-		this.lat = "";
-		this.isApproved = false;
-	}
+    constructor() {
+        this._id = null;
+        this.name = "";
+        this.lon = "";
+        this.lat = "";
+    }
 }

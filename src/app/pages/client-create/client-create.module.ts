@@ -8,7 +8,7 @@ import { MatButtonModule,
           } from '@angular/material';
 import { TextMaskModule } from 'angular2-text-mask';
 import { ClientCreateComponent } from './client-create.component';
-import { RoomService } from '../../data-services/room.service';
+import { RoomService } from '../../data-services/room/room.service';
 import { CoreModule } from '../../core/core.module';
 
 @NgModule({
@@ -24,6 +24,7 @@ import { CoreModule } from '../../core/core.module';
     TextMaskModule
   ],
   providers: [RoomService],
+  entryComponents: [ClientCreateComponent],
   exports: [ClientCreateComponent]
 })
 export class ClientCreateModule { }

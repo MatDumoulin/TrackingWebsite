@@ -1,13 +1,49 @@
+:host {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.website-container {
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 .main-container {
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-around;
-	align-items: center;
+	justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+::ng-deep .mat-sidenav-content {
+    display: flex !important;
+    flex-direction: column;
+    flex-grow: 1 ;
+}
+
+.sidenav-title {
+    text-align: center;
+}
+
+.sidenav {
+    width: 300px;
+}
+
+.stretch-width {
+    width: 100%;
 }
 
 
-:host /deep/ router-outlet + * {
+mat-list-item mat-icon {
+    margin-right: 10px;
+}
+
+:host ::ng-deep router-outlet + * {
    	width: 100%;
 	height: 100%;
 	text-align: center;
