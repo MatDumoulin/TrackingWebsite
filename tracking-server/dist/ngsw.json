@@ -1,0 +1,45 @@
+{
+  "configVersion": 1,
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "urls": [
+        "/favicon.ico",
+        "/index.html",
+        "/inline.de4518e3680c72885bc8.bundle.js",
+        "/main.49c9b9faaeb21ca66af2.bundle.js",
+        "/polyfills.834ae0ef80d9141485fd.bundle.js",
+        "/styles.dced6be138e89f3aab45.bundle.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "urls": [
+        "/assets/blue-dot.jpg",
+        "/assets/blue-marker.png",
+        "/assets/green-marker.png",
+        "/assets/red-marker.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/inline.de4518e3680c72885bc8.bundle.js": "3930139de16dd79d703bbbc3e43e0156a92da6fb",
+    "/assets/blue-dot.jpg": "a943811f1b7c32081076901ee301fdbdc98da991",
+    "/main.49c9b9faaeb21ca66af2.bundle.js": "39feb9059471251ddba589a5c3c7def35cb6612d",
+    "/assets/blue-marker.png": "7145ad74daf9720fc847d3b5af10830cd2d5db2a",
+    "/polyfills.834ae0ef80d9141485fd.bundle.js": "38bc689ef6321233cb61e38f141aaf63c05f4d56",
+    "/assets/green-marker.png": "0e85bfa15a806366033472b79e60ca45ad9d378f",
+    "/styles.dced6be138e89f3aab45.bundle.css": "b81998c8ecca4e0b5a784b86a73687df1be27021",
+    "/assets/red-marker.png": "4775b35b71725c224041cfe5a87d18e376f36a6c",
+    "/favicon.ico": "84161b857f5c547e3699ddfbffc6d8d737542e01",
+    "/index.html": "8db5f2246152a8ca7553a91549c7d9a068221ccc"
+  }
+}
